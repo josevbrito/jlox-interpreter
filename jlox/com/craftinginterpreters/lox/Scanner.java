@@ -48,6 +48,30 @@ class Scanner {
         return true;
     }
 
+    private char peek() {
+        if (isAtEnd()) return '\0';
+        return source.charAt(current);
+    }
+
+    private void string() {
+        while (peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n') line++; // Suporte para strings multilinha
+            advance();
+        }
+
+        if (isAtEnd()) {
+            Lox.error(line, "String não terminada.");
+            return;
+        }
+
+        // O " de fechamento
+        advance();
+
+        // Remove as aspas ao redor do valor e cria o token
+        String value = source.substring(start + 1, current - 1);
+        addToken(STRING, value);
+    }
+
     private void addToken(TokenType type) {
         addToken(type, null);
     }
@@ -86,6 +110,29 @@ class Scanner {
             case '>':
                 addToken(match('=') ? GREATER_EQUAL : GREATER);
                 break;
+            case '*': addToken(STAR);
+                break; 
+            case '/':
+                if (match('/')) {
+                    // Um comentário vai até o fim da linha.
+                    while (peek() != '\n' && !isAtEnd()) advance();
+                } else {
+                    addToken(SLASH);
+                }
+            break;
+            case ' ':
+            case '\r':
+            case '\t':
+                // Ignora espaços em branco.
+                break;
+            case '\n':
+                line++;
+            break;
+
+            // Literais de String
+            case '"': 
+                string(); 
+            break;
 
             default:
                 Lox.error(line, "Caractere Inesperado.");
