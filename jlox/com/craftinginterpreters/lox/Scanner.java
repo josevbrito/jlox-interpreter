@@ -177,8 +177,6 @@ class Scanner {
             case '>':
                 addToken(match('=') ? GREATER_EQUAL : GREATER);
                 break;
-            case '*': addToken(STAR);
-                break; 
             case '/':
                 if (match('/')) {
                     // Um comentário vai até o fim da linha.
