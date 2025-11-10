@@ -32,6 +32,8 @@ cd jlox-interpreter
 
 ### 2. Compile o projeto
 
+Execute este comando na raiz do projeto, `jlox-interpreter/`
+
 ```bash
 javac com/craftinginterpreters/lox/*.java
 ```
@@ -137,15 +139,22 @@ Para sair do modo interativo, pressione `Ctrl+C` ou `Ctrl+D`.
 
 ## 🔍 Funcionalidades Implementadas
 
-- ✅ **Scanner (Análise Léxica)**: Tokenização do código-fonte
-- ✅ **Tokens de um caractere**: `( ) { } , . - + ; * /`
-- ✅ **Tokens de dois caracteres**: `!= == <= >= ! =`
-- ✅ **Literais**: Números (inteiros e decimais), Strings
-- ✅ **Identificadores**: Variáveis e nomes personalizados
-- ✅ **Palavras-chave**: `and`, `class`, `else`, `false`, `for`, `fun`, `if`, `nil`, `or`, `print`, `return`, `super`, `this`, `true`, `var`, `while`
-- ✅ **Comentários**: Comentários de linha única com `//`
-- ✅ **Strings multilinha**: Suporte para strings que abrangem várias linhas
-- ✅ **Modo REPL**: Interpretador interativo
+### ✅ **Scanner (Análise Léxica)**
+  - **Tokenização do código-fonte**
+  - **Tokens de um caractere**: `( ) { } , . - + ; * /`
+  - **Tokens de dois caracteres**: `!= == <= >= ! =`
+  - **Literais**: Números (inteiros e decimais), Strings
+  - **Identificadores**: Variáveis e nomes personalizados
+  - **Palavras-chave**: `and`, `class`, `else`, `false`, `for`, `fun`, `if`, `nil`, `or`, `print`, `return`, `super`, `this`, `true`, `var`, `while`
+  - **Comentários**: Comentários de linha única com `//`
+  - **Strings multilinha**: Suporte para strings que abrangem várias linhas
+  - **Modo REPL**: Interpretador interativo que imprime tokens
+
+### ✅ Representação da AST (Árvore Sintática Abstrata)
+
+  - Geração automática das classes de Expressão (`Expr.java`) usando um script em `tool/`.
+  - Implementação do **Padrão Visitor** para permitir operações na árvore (ex: impressão).
+  - Utilitário `AstPrinter` (implementando o Visitor) para visualização e depuração da AST em formato Lisp (ex: `(* (- 123) (group 45.67))`).
 
 ## 📂 Estrutura do Projeto
 
@@ -153,18 +162,22 @@ Para sair do modo interativo, pressione `Ctrl+C` ou `Ctrl+D`.
 jlox-interpreter/
 └── com/
     └── craftinginterpreters/
-        └── lox/
-            ├── Lox.java          # Classe principal
-            ├── Scanner.java      # Analisador léxico
-            ├── Token.java        # Representação de tokens
-            └── TokenType.java    # Tipos de tokens
+        ├── lox/
+        │   ├── Lox.java          # Classe principal
+        │   ├── Scanner.java      # Analisador léxico
+        │   ├── Token.java        # Representação de tokens
+        │   ├── TokenType.java    # Tipos de tokens
+        │   ├── Expr.java         # Classes da AST (geradas)
+        │   └── AstPrinter.java   # Impressora da AST
+        └── tool/
+            └── GenerateAst.java  # Script de geração da AST
 ```
 
 ## 🐛 Tratamento de Erros
 
 O interpretador detecta e reporta erros léxicos, como:
-- Strings não terminadas
-- Caracteres inesperados
+  - Strings não terminadas
+  - Caracteres inesperados
 
 Exemplo de saída de erro:
 ```
