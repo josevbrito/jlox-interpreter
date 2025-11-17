@@ -1,2 +1,37 @@
 # Arquivos compilados do Java
 *.class
+
+# Pastas de build e output
+/target/
+/bin/
+/out/
+
+# Logs
+*.log
+*.log.*
+
+# Arquivos de IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# Arquivos do Maven
+.mvn/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+build-number.properties
+
+# Outros
+*.jar
+*.war
+*.ear
+*~
