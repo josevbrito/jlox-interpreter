@@ -12,14 +12,15 @@ Implementação do interpretador para a linguagem Lox, desenvolvido como ativida
 
 ## 📋 Pré-requisitos
 
-- **Java JDK 8** ou superior instalado
+- **Java JDK 17** ou superior (conforme definido no `pom.xml`)
+- **Apache Maven** instalado
 - **Git** para clonar o repositório
 
-Para verificar se o Java está instalado:
+Para verificar suas versões:
 ```bash
 java -version
-javac -version
-```
+mvn -version
+````
 
 ## 🚀 Como Clonar e Executar
 
@@ -32,39 +33,56 @@ cd jlox-interpreter
 
 ### 2. Compile o projeto
 
-Execute este comando na raiz do projeto, `jlox-interpreter/`
+O projeto é gerenciado pelo Maven. Para compilar o código, rodar testes e criar o pacote `.jar`, execute:
 
 ```bash
-javac com/craftinginterpreters/lox/*.java
+mvn clean install
 ```
+
+Isso irá baixar as dependências e compilar todo o código-fonte na pasta `target/`.
 
 ### 3. Execute o interpretador
 
+Nós configuramos o `pom.xml` para facilitar a execução usando o plugin `exec-maven-plugin`.
+
 #### Modo Interativo (REPL)
+
+Para iniciar o REPL, execute:
+
 ```bash
-java com.craftinginterpreters.lox.Lox
+mvn exec:java
 ```
 
 #### Executar um arquivo
+
+Para executar um script `.lox`, passe o caminho do arquivo como um argumento:
+
 ```bash
-java com.craftinginterpreters.lox.Lox caminho/do/arquivo.lox
+mvn exec:java -Dexec.args="caminho/do/seu/arquivo.lox"
 ```
 
 ## 📝 Exemplos de Código Lox
 
 ### Exemplo 1: Hello World
+
 Crie um arquivo `hello.lox`:
+
 ```lox
 print "Hello, World!";
 ```
 
 Execute:
+
 ```bash
-java com.craftinginterpreters.lox.Lox hello.lox
+mvn exec:java -Dexec.args="hello.lox"
 ```
 
+(O interpretador ainda está na fase de *Análise Léxica* e *AST*, então ele irá imprimir os tokens ou a árvore, não executar o código).
+
 ### Exemplo 2: Variáveis e Operações Aritméticas
+
 Crie um arquivo `variaveis.lox`:
+
 ```lox
 var a = 10;
 var b = 20;
@@ -72,83 +90,38 @@ var soma = a + b;
 print soma;
 ```
 
-### Exemplo 3: Strings
-```lox
-var nome = "Lox";
-var mensagem = "Bem-vindo ao " + nome + "!";
-print mensagem;
-```
+### Exemplo 3: Modo Interativo
 
-### Exemplo 4: Expressões Lógicas
-```lox
-var x = 5;
-var y = 10;
-print x == y;
-print x != y;
-print x < y;
-print x >= y;
-```
-
-### Exemplo 5: Comentários
-```lox
-// Este é um comentário de linha única
-var numero = 42; // comentário no final da linha
-print numero;
-```
-
-### Exemplo 6: Números Decimais
-```lox
-var pi = 3.14159;
-var raio = 5;
-var area = pi * raio * raio;
-print area;
-```
-
-### Exemplo 7: Valores Booleanos
-```lox
-var verdadeiro = true;
-var falso = false;
-print verdadeiro;
-print falso;
-```
-
-### Exemplo 8: Operadores Lógicos
-```lox
-print true and false;
-print true or false;
-print !true;
-```
-
-### Exemplo 9: Modo Interativo
 Execute o interpretador sem argumentos:
+
 ```bash
-java com.craftinginterpreters.lox.Lox
+mvn exec:java
 ```
 
 Depois digite comandos interativamente:
+
 ```
 > var x = 10;
-> var y = 20;
-> print x + y;
-30
 > print "Olá, Lox!";
-Olá, Lox!
 ```
+
+(O programa irá ler a linha, gerar os tokens e aguardar a próxima entrada).
 
 Para sair do modo interativo, pressione `Ctrl+C` ou `Ctrl+D`.
 
 ## 🔍 Funcionalidades Implementadas
 
-### ✅ **Scanner (Análise Léxica)**
-  - **Tokenização do código-fonte**
-  - **Tokens de um caractere**: `( ) { } , . - + ; * /`
-  - **Tokens de dois caracteres**: `!= == <= >= ! =`
-  - **Literais**: Números (inteiros e decimais), Strings
-  - **Identificadores**: Variáveis e nomes personalizados
-  - **Palavras-chave**: `and`, `class`, `else`, `false`, `for`, `fun`, `if`, `nil`, `or`, `print`, `return`, `super`, `this`, `true`, `var`, `while`
-  - **Comentários**: Comentários de linha única com `//`
-  - **Strings multilinha**: Suporte para strings que abrangem várias linhas
-  - **Modo REPL**: Interpretador interativo que imprime tokens
+### ✅ Scanner (Análise Léxica)
+
+  - Tokenização do código-fonte
+  - Tokens de um caractere: `( ) { } , . - + ; * /`
+  - Tokens de dois caracteres: `!= == <= >= ! =`
+  - Literais: Números (inteiros e decimais), Strings
+  - Identificadores: Variáveis e nomes personalizados
+  - Palavras-chave: `and`, `class`, `else`, `false`, `for`, `fun`, `if`, `nil`, `or`, `print`, `return`, `super`, `this`, `true`, `var`, `while`
+  - Comentários: Comentários de linha única com `//`
+  - Strings multilinha: Suporte para strings que abrangem várias linhas
+  - Modo REPL: Interpretador interativo que imprime tokens
 
 ### ✅ Representação da AST (Árvore Sintática Abstrata)
 
@@ -160,26 +133,35 @@ Para sair do modo interativo, pressione `Ctrl+C` ou `Ctrl+D`.
 
 ```
 jlox-interpreter/
-└── com/
-    └── craftinginterpreters/
-        ├── lox/
-        │   ├── Lox.java          # Classe principal
-        │   ├── Scanner.java      # Analisador léxico
-        │   ├── Token.java        # Representação de tokens
-        │   ├── TokenType.java    # Tipos de tokens
-        │   ├── Expr.java         # Classes da AST (geradas)
-        │   └── AstPrinter.java   # Impressora da AST
-        └── tool/
-            └── GenerateAst.java  # Script de geração da AST
+├── src/
+│   └── main/
+│       └── java/               
+│           └── com/
+│               └── craftinginterpreters/
+│                   ├── lox/
+│                   │   ├── Lox.java          # Classe principal
+│                   │   ├── Scanner.java      # Analisador léxico
+│                   │   ├── Token.java        # Representação de tokens
+│                   │   ├── TokenType.java    # Tipos de tokens
+│                   │   ├── Expr.java         # Classes da AST (geradas)
+│                   │   └── AstPrinter.java   # Impressora da AST
+│                   └── tool/
+│                       └── GenerateAst.java
+├── target/                     # Pasta de build (ignorada pelo Git)
+├── .gitignore
+├── pom.xml                     # Configuração do Maven
+└── README.md
 ```
 
 ## 🐛 Tratamento de Erros
 
 O interpretador detecta e reporta erros léxicos, como:
+
   - Strings não terminadas
   - Caracteres inesperados
 
 Exemplo de saída de erro:
+
 ```
 [line 2] Error: String não terminada.
 [line 5] Error: Caractere Inesperado.
