@@ -54,10 +54,15 @@ public class Lox {
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
 
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        // Para se houver um erro de sintaxe
+        if (hadError) return;
+
+        // Imprime a árvore usando o AstPrinter
+        System.out.println(new AstPrinter().print(expression));
+
     }
 
     // Função para relatar erros.

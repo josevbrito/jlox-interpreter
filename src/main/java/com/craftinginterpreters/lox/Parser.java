@@ -13,6 +13,18 @@ class Parser {
         this.tokens = tokens;
     }
 
+    /**
+     * Ponto de entrada principal.
+     * Tenta parsear a sequência de tokens em uma única expressão.
+     */
+    Expr parse() {
+        try {
+            return expression();
+        } catch (ParseError error) {
+            return null;
+        }
+    }
+
     /*
      * MÉTODOS DAS REGRAS DA GRAMÁTICA (PARSING)
      */
