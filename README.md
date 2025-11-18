@@ -4,10 +4,10 @@ Implementação do interpretador para a linguagem Lox, desenvolvido como ativida
 
 ## Integrantes
 
-- **Nome:** JOSE VICTOR BRITO COSTA
+- **Nome:** Jose Victor Brito Costa
 - **GitHub:** [josevbrito](https://github.com/josevbrito)
 
-- **Nome:** ANA IARA LOAYZA COSTA
+- **Nome:** Ana Iara Loayza Costa
 - **GitHub:** [iaraloayza](https://github.com/iaraloayza)
 
 ## 📋 Pré-requisitos
@@ -63,34 +63,53 @@ mvn exec:java -Dexec.args="caminho/do/seu/arquivo.lox"
 
 ## 📝 Exemplos de Código Lox
 
-### Exemplo 1: Hello World
+O interpretador agora está na fase de **Análise Sintática**. Ele irá ler o código, construir a Árvore Sintática Abstrata (AST) e imprimi-la no console.
 
-Crie um arquivo `hello.lox`:
+### Exemplo 1: Precedência de Operadores
 
-```lox
-print "Hello, World!";
+Digite no REPL:
+
+```
+> 1 + 2 * 3;
 ```
 
-Execute:
+Saída (AST no formato Lisp):
 
-```bash
-mvn exec:java -Dexec.args="hello.lox"
+```
+(+ 1.0 (* 2.0 3.0))
 ```
 
-(O interpretador ainda está na fase de *Análise Léxica* e *AST*, então ele irá imprimir os tokens ou a árvore, não executar o código).
+Isso demonstra que o parser entende que a multiplicação (`*`) deve ser executada antes da adição (`+`).
 
-### Exemplo 2: Variáveis e Operações Aritméticas
+### Exemplo 2: Agrupamento
 
-Crie um arquivo `variaveis.lox`:
+Digite no REPL:
 
-```lox
-var a = 10;
-var b = 20;
-var soma = a + b;
-print soma;
+```
+> (1 + 2) * 3;
 ```
 
-### Exemplo 3: Modo Interativo
+Saída:
+
+```
+(* (group (+ 1.0 2.0)) 3.0)
+```
+
+Isso mostra que os parênteses têm a maior precedência.
+
+### Exemplo 3: Operadores Lógicos e Comparação
+
+```
+> 1 < 2 == true;
+```
+
+Saída:
+
+```
+(== (< 1.0 2.0) true)
+```
+
+### Exemplo 4: Modo Interativo
 
 Execute o interpretador sem argumentos:
 
@@ -101,11 +120,9 @@ mvn exec:java
 Depois digite comandos interativamente:
 
 ```
-> var x = 10;
-> print "Olá, Lox!";
+> 5 * (10 - 2);
+(* 5.0 (group (- 10.0 2.0)))
 ```
-
-(O programa irá ler a linha, gerar os tokens e aguardar a próxima entrada).
 
 Para sair do modo interativo, pressione `Ctrl+C` ou `Ctrl+D`.
 
@@ -113,21 +130,24 @@ Para sair do modo interativo, pressione `Ctrl+C` ou `Ctrl+D`.
 
 ### ✅ Scanner (Análise Léxica)
 
-  - Tokenização do código-fonte
-  - Tokens de um caractere: `( ) { } , . - + ; * /`
-  - Tokens de dois caracteres: `!= == <= >= ! =`
-  - Literais: Números (inteiros e decimais), Strings
-  - Identificadores: Variáveis e nomes personalizados
-  - Palavras-chave: `and`, `class`, `else`, `false`, `for`, `fun`, `if`, `nil`, `or`, `print`, `return`, `super`, `this`, `true`, `var`, `while`
-  - Comentários: Comentários de linha única com `//`
-  - Strings multilinha: Suporte para strings que abrangem várias linhas
-  - Modo REPL: Interpretador interativo que imprime tokens
+  - Tokenização do código-fonte.
+  - Reconhecimento de tokens de um ou dois caracteres (`(`, `!=`, etc.).
+  - Reconhecimento de Literais (Números, Strings), Palavras-chave e Identificadores.
+  - Suporte a comentários (`//`) e strings multi-linha.
+  - Modo REPL interativo.
 
 ### ✅ Representação da AST (Árvore Sintática Abstrata)
 
-  - Geração automática das classes de Expressão (`Expr.java`) usando um script em `tool/`.
-  - Implementação do **Padrão Visitor** para permitir operações na árvore (ex: impressão).
-  - Utilitário `AstPrinter` (implementando o Visitor) para visualização e depuração da AST em formato Lisp (ex: `(* (- 123) (group 45.67))`).
+  - Geração automática das classes de Expressão (`Expr.java`) usando um script.
+  - Implementação do **Padrão Visitor** para permitir operações na árvore.
+  - Utilitário `AstPrinter` (implementando o Visitor) para visualização da AST.
+
+### ✅ Parser (Análise Sintática)
+
+  - Implementação de um parser de **descida recursiva**.
+  - Conversão da sequência de tokens em uma Árvore Sintática Abstrata (AST).
+  - Manipulação correta de **precedência e associatividade** de operadores.
+  - Suporte para todas as expressões da gramática: Literais, Agrupamento (`()`), Unárias (`-`, `!`) e Binárias (`+`, `-`, `*`, `/`, `==`, `!=`, `<`, `<=`, `>`, `>=`).
 
 ## 📂 Estrutura do Projeto
 
@@ -135,7 +155,7 @@ Para sair do modo interativo, pressione `Ctrl+C` ou `Ctrl+D`.
 jlox-interpreter/
 ├── src/
 │   └── main/
-│       └── java/               
+│       └── java/
 │           └── com/
 │               └── craftinginterpreters/
 │                   ├── lox/
@@ -144,27 +164,32 @@ jlox-interpreter/
 │                   │   ├── Token.java        # Representação de tokens
 │                   │   ├── TokenType.java    # Tipos de tokens
 │                   │   ├── Expr.java         # Classes da AST (geradas)
+│                   │   ├── Parser.java       # Analisador sintático
 │                   │   └── AstPrinter.java   # Impressora da AST
 │                   └── tool/
-│                       └── GenerateAst.java
-├── target/                     # Pasta de build (ignorada pelo Git)
+│                       └── GenerateAst.java  # Script de geração da AST
+├── target/                                   # Pasta de build
 ├── .gitignore
-├── pom.xml                     # Configuração do Maven
+├── pom.xml                                   # Configuração do Maven
 └── README.md
 ```
 
 ## 🐛 Tratamento de Erros
 
-O interpretador detecta e reporta erros léxicos, como:
+O interpretador detecta e reporta dois tipos de erros:
 
-  - Strings não terminadas
-  - Caracteres inesperados
+1.  **Erros Léxicos** (do Scanner):
+      - Strings não terminadas
+      - Caracteres inesperados
+2.  **Erros Sintáticos** (do Parser):
+      - Expressões mal formadas (ex: `1 + * 2`)
+      - Parênteses não fechados (ex: `(1 + 2`)
 
 Exemplo de saída de erro:
 
 ```
-[line 2] Error: String não terminada.
-[line 5] Error: Caractere Inesperado.
+> 1 + * 3;
+[line 1] Error at '*': Expect expression.
 ```
 
 ## 📚 Referência
