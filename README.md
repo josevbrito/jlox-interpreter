@@ -63,91 +63,81 @@ mvn exec:java -Dexec.args="caminho/do/seu/arquivo.lox"
 
 ## 📝 Exemplos de Código Lox
 
-O interpretador agora está na fase de **Análise Sintática**. Ele irá ler o código, construir a Árvore Sintática Abstrata (AST) e imprimi-la no console.
+O interpretador agora está na fase de **Avaliação de Expressões**. Ele lê o código, processa a árvore sintática e **calcula o resultado**.
 
-### Exemplo 1: Precedência de Operadores
-
-Digite no REPL:
-
-```
-> 1 + 2 * 3;
-```
-
-Saída (AST no formato Lisp):
-
-```
-(+ 1.0 (* 2.0 3.0))
-```
-
-Isso demonstra que o parser entende que a multiplicação (`*`) deve ser executada antes da adição (`+`).
-
-### Exemplo 2: Agrupamento
+### Exemplo 1: Aritmética e Precedência
 
 Digite no REPL:
 
 ```
-> (1 + 2) * 3;
+> 1 + 2 * 3
 ```
 
 Saída:
 
 ```
-(* (group (+ 1.0 2.0)) 3.0)
+7
 ```
 
-Isso mostra que os parênteses têm a maior precedência.
+(A multiplicação é executada antes da soma).
 
-### Exemplo 3: Operadores Lógicos e Comparação
+### Exemplo 2: Concatenação de Strings
 
 ```
-> 1 < 2 == true;
+> "Lox " + "é " + "legal"
 ```
 
 Saída:
 
 ```
-(== (< 1.0 2.0) true)
+Lox é legal
 ```
 
-### Exemplo 4: Modo Interativo
-
-Execute o interpretador sem argumentos:
-
-```bash
-mvn exec:java
-```
-
-Depois digite comandos interativamente:
+### Exemplo 3: Lógica e Comparação
 
 ```
-> 5 * (10 - 2);
-(* 5.0 (group (- 10.0 2.0)))
+> 5 > 2
 ```
 
-Para sair do modo interativo, pressione `Ctrl+C` ou `Ctrl+D`.
+Saída:
+
+```
+true
+```
+
+### Exemplo 4: Agrupamento
+
+```
+> (1 + 2) * 3
+```
+
+Saída:
+
+```
+9
+```
 
 ## 🔍 Funcionalidades Implementadas
 
 ### ✅ Scanner (Análise Léxica)
 
   - Tokenização do código-fonte.
-  - Reconhecimento de tokens de um ou dois caracteres (`(`, `!=`, etc.).
-  - Reconhecimento de Literais (Números, Strings), Palavras-chave e Identificadores.
+  - Reconhecimento de Literais, Palavras-chave e Identificadores.
   - Suporte a comentários (`//`) e strings multi-linha.
-  - Modo REPL interativo.
-
-### ✅ Representação da AST (Árvore Sintática Abstrata)
-
-  - Geração automática das classes de Expressão (`Expr.java`) usando um script.
-  - Implementação do **Padrão Visitor** para permitir operações na árvore.
-  - Utilitário `AstPrinter` (implementando o Visitor) para visualização da AST.
 
 ### ✅ Parser (Análise Sintática)
 
-  - Implementação de um parser de **descida recursiva**.
-  - Conversão da sequência de tokens em uma Árvore Sintática Abstrata (AST).
-  - Manipulação correta de **precedência e associatividade** de operadores.
-  - Suporte para todas as expressões da gramática: Literais, Agrupamento (`()`), Unárias (`-`, `!`) e Binárias (`+`, `-`, `*`, `/`, `==`, `!=`, `<`, `<=`, `>`, `>=`).
+  - Parser de **descida recursiva**.
+  - Construção da Árvore Sintática Abstrata (AST).
+  - Manipulação correta de **precedência e associatividade**.
+
+### ✅ Interpreter (Avaliação)
+
+  - Implementação do padrão **Visitor** para execução da AST.
+  - **Aritmética:** Soma, subtração, multiplicação, divisão.
+  - **Lógica:** Comparações (`>`, `<`, `==`) e operadores unários (`!`, `-`).
+  - **Tipagem Dinâmica:** Concatenação de strings com `+` e verificação de tipos em tempo de execução.
+  - **Truthiness:** Lógica onde apenas `false` e `nil` são falsos.
 
 ## 📂 Estrutura do Projeto
 
@@ -165,7 +155,9 @@ jlox-interpreter/
 │                   │   ├── TokenType.java    # Tipos de tokens
 │                   │   ├── Expr.java         # Classes da AST (geradas)
 │                   │   ├── Parser.java       # Analisador sintático
-│                   │   └── AstPrinter.java   # Impressora da AST
+│                   │   ├── Interpreter.java  # Avaliador de expressões
+│                   │   ├── RuntimeError.java # Erros de execução
+│                   │   └── AstPrinter.java   # Utilitário de debug
 │                   └── tool/
 │                       └── GenerateAst.java  # Script de geração da AST
 ├── target/                                   # Pasta de build
@@ -176,20 +168,18 @@ jlox-interpreter/
 
 ## 🐛 Tratamento de Erros
 
-O interpretador detecta e reporta dois tipos de erros:
+O interpretador lida com três níveis de erros:
 
-1.  **Erros Léxicos** (do Scanner):
-      - Strings não terminadas
-      - Caracteres inesperados
-2.  **Erros Sintáticos** (do Parser):
-      - Expressões mal formadas (ex: `1 + * 2`)
-      - Parênteses não fechados (ex: `(1 + 2`)
+1.  **Erros Léxicos:** Caracteres inválidos ou strings não fechadas.
+2.  **Erros Sintáticos:** Expressões mal formadas (ex: `1 + * 2`).
+3.  **Erros de Tempo de Execução (Runtime):** Operações com tipos inválidos.
 
-Exemplo de saída de erro:
+Exemplo de erro de execução (tentar somar número com texto):
 
 ```
-> 1 + * 3;
-[line 1] Error at '*': Expect expression.
+> 5 + "texto"
+Operands must be two numbers or two strings.
+[line 1]
 ```
 
 ## 📚 Referência
