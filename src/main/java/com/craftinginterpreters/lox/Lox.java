@@ -12,6 +12,12 @@ public class Lox {
     // Para indicar se houve algum erro durante a execução para que o programa possa sair com um código de erro apropriado.
     static boolean hadError = false;
 
+    // Para indicar se houve algum erro em tempo de execução.
+    static boolean hadRuntimeError = false;
+
+    // Instância do interpretador
+    private static final Interpreter interpreter = new Interpreter();
+
     // Função Principal que inicia o programa 
     public static void main(String[] args) throws IOException {
         // Verifica se o número de argumentos da linha de comando é maior que 1.
@@ -60,8 +66,8 @@ public class Lox {
         // Para se houver um erro de sintaxe
         if (hadError) return;
 
-        // Imprime a árvore usando o AstPrinter
-        System.out.println(new AstPrinter().print(expression));
+        // Interpreta a expressão (a árvore)
+        interpreter.interpret(expression);
 
     }
 
@@ -84,5 +90,12 @@ public class Lox {
         } else {
             report(token.line, " at '" + token.lexeme + "'", message);
         }
+    }
+
+    // Função para relatar erros de tempo de execução.
+    static void runtimeError(RuntimeError error) {
+        System.err.println(error.getMessage() +
+            "\n[line " + error.token.line + "]");
+        hadRuntimeError = true;
     }
 }
