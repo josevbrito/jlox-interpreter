@@ -61,14 +61,11 @@ public class Lox {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        List<Stmt> statements = parser.parse();
 
-        // Para se houver um erro de sintaxe
         if (hadError) return;
 
-        // Interpreta a expressão (a árvore)
-        interpreter.interpret(expression);
-
+        interpreter.interpret(statements);
     }
 
     // Função para relatar erros.
