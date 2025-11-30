@@ -39,21 +39,17 @@ O projeto é gerenciado pelo Maven. Para compilar o código, rodar testes e cria
 mvn clean install
 ```
 
-Isso irá baixar as dependências e compilar todo o código-fonte na pasta `target/`.
-
 ### 3. Execute o interpretador
-
-Nós configuramos o `pom.xml` para facilitar a execução usando o plugin `exec-maven-plugin`.
 
 #### Modo Interativo (REPL)
 
-Para iniciar o REPL, execute:
+Para iniciar o REPL (ideal para testar expressões simples linha por linha.), execute:
 
 ```bash
 mvn exec:java
 ```
 
-#### Executar um arquivo
+#### Executar um Arquivo (.lox)
 
 Para executar um script `.lox`, passe o caminho do arquivo como um argumento:
 
@@ -63,81 +59,59 @@ mvn exec:java -Dexec.args="caminho/do/seu/arquivo.lox"
 
 ## 📝 Exemplos de Código Lox
 
-O interpretador agora está na fase de **Avaliação de Expressões**. Ele lê o código, processa a árvore sintática e **calcula o resultado**.
+### Exemplo 1: Sequência de Fibonacci (Laços e Variáveis)
 
-### Exemplo 1: Aritmética e Precedência
+Há o arquivo `fib.lox`:
 
-Digite no REPL:
+Execute: `mvn exec:java -Dexec.args="fib.lox"`
 
-```
-> 1 + 2 * 3
-```
+### Exemplo 2: Condicionais (If/Else)
 
-Saída:
+Crie um arquivo `check.lox`:
 
-```
-7
-```
-
-(A multiplicação é executada antes da soma).
-
-### Exemplo 2: Concatenação de Strings
-
-```
-> "Lox " + "é " + "legal"
+```lox
+var a = 10;
+if (a > 5) {
+  print "Maior que 5";
+} else {
+  print "Menor";
+}
 ```
 
-Saída:
+Execute: `mvn exec:java -Dexec.args="check.lox"`
 
-```
-Lox é legal
-```
+### Exemplo 3: Escopo e Blocos
 
-### Exemplo 3: Lógica e Comparação
+Crie um arquivo `scope.lox`:
 
-```
-> 5 > 2
-```
-
-Saída:
-
-```
-true
-```
-
-### Exemplo 4: Agrupamento
-
-```
-> (1 + 2) * 3
-```
-
-Saída:
-
-```
-9
+```lox
+var a = "global";
+{
+  var a = "local";
+  print a; // Imprime "local"
+}
+print a; // Imprime "global"
 ```
 
 ## 🔍 Funcionalidades Implementadas
 
 ### ✅ Scanner (Análise Léxica)
 
-  - Tokenização do código-fonte.
-  - Reconhecimento de Literais, Palavras-chave e Identificadores.
-  - Suporte a comentários (`//`) e strings multi-linha.
+  - Tokenização completa (símbolos, literais, identificadores, keywords).
 
 ### ✅ Parser (Análise Sintática)
 
-  - Parser de **descida recursiva**.
-  - Construção da Árvore Sintática Abstrata (AST).
-  - Manipulação correta de **precedência e associatividade**.
+  - Parser de descida recursiva.
+  - Suporte a **Expressões** (Aritmética, Lógica, Atribuição).
+  - Suporte a **Declarações** (Variáveis `var`, Blocos `{...}`, `if/else`, `while`, `for`, `print`).
+  - Tratamento de erros sintáticos com modo de pânico.
 
-### ✅ Interpreter (Avaliação)
+### ✅ Interpreter (Execução)
 
-  - Implementação do padrão **Visitor** para execução da AST.
-  - **Aritmética:** Soma, subtração, multiplicação, divisão.
-  - **Lógica:** Comparações (`>`, `<`, `==`) e operadores unários (`!`, `-`).
-  - **Tipagem Dinâmica:** Concatenação de strings com `+` e verificação de tipos em tempo de execução.
-  - **Truthiness:** Lógica onde apenas `false` e `nil` são falsos.
+  - Avaliação de expressões e execução de statements.
+  - **Gerenciamento de Estado:** Variáveis globais e escopos locais (Environment).
+  - **Controle de Fluxo:** Condicionais e laços de repetição.
+  - **Tipagem Dinâmica:** Verificação de tipos em tempo de execução.
 
 ## 📂 Estrutura do Projeto
 
@@ -151,35 +125,19 @@ jlox-interpreter/
 │                   ├── lox/
 │                   │   ├── Lox.java          # Classe principal
 │                   │   ├── Scanner.java      # Analisador léxico
-│                   │   ├── Token.java        # Representação de tokens
-│                   │   ├── TokenType.java    # Tipos de tokens
-│                   │   ├── Expr.java         # Classes da AST (geradas)
 │                   │   ├── Parser.java       # Analisador sintático
-│                   │   ├── Interpreter.java  # Avaliador de expressões
-│                   │   ├── RuntimeError.java # Erros de execução
-│                   │   └── AstPrinter.java   # Utilitário de debug
+│                   │   ├── Interpreter.java  # Executor (Visitor)
+│                   │   ├── Environment.java  # Gerenciador de variáveis/escopo
+│                   │   ├── Expr.java         # AST de Expressões
+│                   │   ├── Stmt.java         # AST de Declarações
+│                   │   └── ... (Token, TokenType, etc)
 │                   └── tool/
-│                       └── GenerateAst.java  # Script de geração da AST
+│                       └── GenerateAst.java  # Gerador de AST
 ├── target/                                   # Pasta de build
 ├── .gitignore
+├── fib.lox                                   # Código .lox para teste
 ├── pom.xml                                   # Configuração do Maven
 └── README.md
-```
-
-## 🐛 Tratamento de Erros
-
-O interpretador lida com três níveis de erros:
-
-1.  **Erros Léxicos:** Caracteres inválidos ou strings não fechadas.
-2.  **Erros Sintáticos:** Expressões mal formadas (ex: `1 + * 2`).
-3.  **Erros de Tempo de Execução (Runtime):** Operações com tipos inválidos.
-
-Exemplo de erro de execução (tentar somar número com texto):
-
-```
-> 5 + "texto"
-Operands must be two numbers or two strings.
-[line 1]
 ```
 
 ## 📚 Referência
