@@ -49,8 +49,10 @@ class Parser {
 
     // statement -> expression SEMICOLON | printStatement
     private Stmt statement() {
+        if (match(FOR)) return forStatement();
         if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
+        if (match(WHILE)) return whileStatement();
         if (match(LEFT_BRACE)) return new Stmt.Block(block());
         return expressionStatement();
     }
@@ -68,6 +70,69 @@ class Parser {
         }
 
         return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
+    // forStatement -> "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement
+    private Stmt whileStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'while'.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after condition.");
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
+    }
+
+    // forStatement -> "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement
+    private Stmt forStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'for'.");
+
+        // 1. Inicializador (var i = 0;)
+        Stmt initializer;
+        if (match(SEMICOLON)) {
+            initializer = null;
+        } else if (match(VAR)) {
+            initializer = varDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+
+        // 2. Condição (i < 10;)
+        Expr condition = null;
+        if (!check(SEMICOLON)) {
+            condition = expression();
+        }
+        consume(SEMICOLON, "Expect ';' after loop condition.");
+
+        // 3. Incremento (i = i + 1)
+        Expr increment = null;
+        if (!check(RIGHT_PAREN)) {
+            increment = expression();
+        }
+        consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        // 4. O Corpo do Loop
+        Stmt body = statement();
+
+        // Se tem incremento, ele acontece após o corpo
+        if (increment != null) {
+            body = new Stmt.Block(
+                java.util.Arrays.asList(
+                    body,
+                    new Stmt.Expression(increment)
+                )
+            );
+        }
+
+        // Se não tem condição, é um loop infinito (while true)
+        if (condition == null) condition = new Expr.Literal(true);
+        body = new Stmt.While(condition, body);
+
+        // Se tem inicializador, ele roda uma vez antes do loop
+        if (initializer != null) {
+            body = new Stmt.Block(java.util.Arrays.asList(initializer, body));
+        }
+
+        return body;
     }
 
     // printStatement -> "print" expression SEMICOLON
