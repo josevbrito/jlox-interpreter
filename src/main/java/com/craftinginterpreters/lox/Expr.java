@@ -83,7 +83,6 @@ abstract class Expr {
 
     final Object value;
   }
-
   static class Logical extends Expr {
     Logical(Expr left, Token operator, Expr right) {
       this.left = left;
