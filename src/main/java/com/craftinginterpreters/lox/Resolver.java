@@ -27,6 +27,32 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         }
     }
 
+    private void declare(Token name) {
+        if (scopes.isEmpty()) return;
+
+        Map<String, Boolean> scope = scopes.peek();
+        if (scope.containsKey(name.lexeme)) {
+            Lox.error(name, "Already a variable with this name in this scope.");
+        }
+        
+        scope.put(name.lexeme, false); // false = declarado, mas não definido (inicializado)
+    }
+
+    private void define(Token name) {
+        if (scopes.isEmpty()) return;
+        scopes.peek().put(name.lexeme, true); // true = inicializado
+    }
+
+    private void resolveLocal(Expr expr, Token name) {
+        for (int i = scopes.size() - 1; i >= 0; i--) {
+            if (scopes.get(i).containsKey(name.lexeme)) {
+                // Passa o número de "saltos" (hops) até a variável
+                interpreter.resolve(expr, scopes.size() - 1 - i);
+                return;
+            }
+        }
+    }
+
     private void beginScope() {
         scopes.push(new HashMap<String, Boolean>());
     }
@@ -45,9 +71,6 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     // --- Placeholders para os outros métodos (para compilar) ---
     // Vamos preencher isso nos próximos commits
-    @Override public Void visitVarStmt(Stmt.Var stmt) { return null; }
-    @Override public Void visitVariableExpr(Expr.Variable expr) { return null; }
-    @Override public Void visitAssignExpr(Expr.Assign expr) { return null; }
     @Override public Void visitFunctionStmt(Stmt.Function stmt) { return null; }
     @Override public Void visitExpressionStmt(Stmt.Expression stmt) { return null; }
     @Override public Void visitIfStmt(Stmt.If stmt) { return null; }
@@ -60,4 +83,31 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override public Void visitLiteralExpr(Expr.Literal expr) { return null; }
     @Override public Void visitLogicalExpr(Expr.Logical expr) { return null; }
     @Override public Void visitUnaryExpr(Expr.Unary expr) { return null; }
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt) {
+        declare(stmt.name);
+        if (stmt.initializer != null) {
+            resolve(stmt.initializer);
+        }
+        define(stmt.name);
+        return null;
+    }
+
+    @Override
+    public Void visitVariableExpr(Expr.Variable expr) {
+        if (!scopes.isEmpty() &&
+            scopes.peek().get(expr.name.lexeme) == Boolean.FALSE) {
+            Lox.error(expr.name, "Can't read local variable in its own initializer.");
+        }
+
+        resolveLocal(expr, expr.name);
+        return null;
+    }
+
+    @Override
+    public Void visitAssignExpr(Expr.Assign expr) {
+        resolve(expr.value);
+        resolveLocal(expr, expr.name);
+        return null;
+    }
 }
