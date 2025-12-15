@@ -15,7 +15,7 @@ public class Lox {
     // Para indicar se houve algum erro em tempo de execução.
     static boolean hadRuntimeError = false;
 
-    // Instância do interpretador
+    // Instância única do interpretador
     private static final Interpreter interpreter = new Interpreter();
 
     // Função Principal que inicia o programa 
@@ -37,38 +37,55 @@ public class Lox {
     private static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
-        
+
         if (hadError) System.exit(65);
+        if (hadRuntimeError) System.exit(70);
     }
 
-    
+
     // Função que executa o código-fonte Lox.
     private static void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
-        for (;;) { 
+        for (;;) {
             System.out.print("> ");
             String line = reader.readLine();
-            if (line == null) break; 
+            if (line == null) break;
+
             run(line);
-            hadError = false; 
+            hadError = false;
         }
     }
 
-    // Função que processa o código-fonte Lox.
+    // =========================
+    // === PIPELINE PRINCIPAL ==
+    // =========================
     private static void run(String source) {
+        // 1. Scanner
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
+
+        // 2. Parser
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
 
         if (hadError) return;
 
+        // 3. Resolver (NOVO)
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(statements);
+
+        if (hadError) return;
+
+        // 4. Interpreter
         interpreter.interpret(statements);
     }
 
-    // Função para relatar erros.
+    // =========================
+    // === ERROS ===============
+    // =========================
+
     static void error(int line, String message) {
         report(line, "", message);
     }
@@ -91,8 +108,8 @@ public class Lox {
 
     // Função para relatar erros de tempo de execução.
     static void runtimeError(RuntimeError error) {
-        System.err.println(error.getMessage() +
-            "\n[line " + error.token.line + "]");
+        System.err.println(
+            error.getMessage() + "\n[line " + error.token.line + "]");
         hadRuntimeError = true;
     }
 }
