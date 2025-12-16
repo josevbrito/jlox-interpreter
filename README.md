@@ -57,61 +57,58 @@ Para executar um script `.lox`, passe o caminho do arquivo como um argumento:
 mvn exec:java -Dexec.args="caminho/do/seu/arquivo.lox"
 ```
 
-## 📝 Exemplos de Código Lox
+## 📝 Exemplos de Código Lox Incluídos
+O repositório já conta com alguns scripts prontos para teste na raiz do projeto:
 
-### Exemplo 1: Sequência de Fibonacci (Laços e Variáveis)
+### 1. Sequência de Fibonacci (`fib.lox`)
+Testa laços (`for`) e recursão.
 
-Há o arquivo `fib.lox`:
-
-Execute: `mvn exec:java -Dexec.args="fib.lox"`
-
-### Exemplo 2: Condicionais (If/Else)
-
-Crie um arquivo `check.lox`:
-
-```lox
-var a = 10;
-if (a > 5) {
-  print "Maior que 5";
-} else {
-  print "Menor";
-}
+```bash
+mvn exec:java -Dexec.args="fib.lox"
 ```
 
-Execute: `mvn exec:java -Dexec.args="check.lox"`
+### 2. Números Primos (`primos.lox`)
+Testa lógica matemática e fluxo de controle.
 
-### Exemplo 3: Escopo e Blocos
+```bash
+mvn exec:java -Dexec.args="primos.lox"
+```
 
-Crie um arquivo `scope.lox`:
+### 3. Teste de Classes (`conta.lox`)
+Demonstra o uso de orientação a objetos em Lox.
 
-```lox
-var a = "global";
-{
-  var a = "local";
-  print a; // Imprime "local"
-}
-print a; // Imprime "global"
+```bash
+mvn exec:java -Dexec.args="conta.lox"
 ```
 
 ## 🔍 Funcionalidades Implementadas
 
 ### ✅ Scanner (Análise Léxica)
-
-  - Tokenização completa (símbolos, literais, identificadores, keywords).
+* Tokenização completa (símbolos, literais, identificadores, keywords).
+* Rastreamento de linhas para reportar erros.
 
 ### ✅ Parser (Análise Sintática)
+* Parser de descida recursiva (`Recursive Descent`).
+* Suporte completo a Expressões e Declarações.
+* Tratamento de erros sintáticos (Modo de Pânico).
 
-  - Parser de descida recursiva.
-  - Suporte a **Expressões** (Aritmética, Lógica, Atribuição).
-  - Suporte a **Declarações** (Variáveis `var`, Blocos `{...}`, `if/else`, `while`, `for`, `print`).
-  - Tratamento de erros sintáticos com modo de pânico.
+### ✅ Análise Semântica (Resolver)* Passada de resolução de variáveis antes da interpretação.
+* Garante o escopo estático (lexical scoping) correto.
+* Detecta erros como `return` fora de funções ou `this` fora de classes.
 
-### ✅ Interpreter (Execução)
+### ✅ Interpreter (Execução)* **Tipagem Dinâmica:** Verificação em tempo de execução.
+* **Controle de Fluxo:** `if/else`, `while`, `for`.
+* **Funções:**
+* Funções nativas (ex: `clock()`).
+* Funções definidas pelo usuário.
+* Suporte a `return` e Closures.
 
-  - Avaliação de expressões e execução de statements.
-  - **Gerenciamento de Estado:** Variáveis globais e escopos locais (Environment).
-  - **Controle de Fluxo:** Condicionais e laços de repetição.
-  - **Tipagem Dinâmica:** Verificação de tipos em tempo de execução.
+
+* **Orientação a Objetos:**
+* Declaração de `class`.
+* Instanciação de objetos.
+* Métodos e propriedades (`this`).
+
 
 ## 📂 Estrutura do Projeto
 
@@ -123,24 +120,29 @@ jlox-interpreter/
 │           └── com/
 │               └── craftinginterpreters/
 │                   ├── lox/
-│                   │   ├── Lox.java          # Classe principal
+│                   │   ├── Lox.java          # Classe principal (Entry point)
 │                   │   ├── Scanner.java      # Analisador léxico
 │                   │   ├── Parser.java       # Analisador sintático
+│                   │   ├── Resolver.java     # Analisador semântico (Scopes)
 │                   │   ├── Interpreter.java  # Executor (Visitor)
-│                   │   ├── Environment.java  # Gerenciador de variáveis/escopo
+│                   │   ├── Environment.java  # Gerenciador de escopo/variáveis
+│                   │   ├── LoxFunction.java  # Estrutura de funções
+│                   │   ├── LoxClass.java     # Estrutura de classes
+│                   │   ├── LoxInstance.java  # Instâncias de classes
 │                   │   ├── Expr.java         # AST de Expressões
 │                   │   ├── Stmt.java         # AST de Declarações
-│                   │   └── ... (Token, TokenType, etc)
+│                   │   └── ... (Token, TokenType, RuntimeError, Return)
 │                   └── tool/
-│                       └── GenerateAst.java  # Gerador de AST
+│                       └── GenerateAst.java  # Ferramenta geradora de AST
 ├── target/                                   # Pasta de build
-├── .gitignore
-├── fib.lox                                   # Código .lox para teste
+├── conta.lox                                 # Exemplo OO
+├── fib.lox                                   # Exemplo Recursão
+├── primos.lox                                # Exemplo Lógica
 ├── pom.xml                                   # Configuração do Maven
 └── README.md
 ```
 
-## 📚 Referência
+##📚 Referência
 
 Este projeto é baseado no livro [**Crafting Interpreters**](https://craftinginterpreters.com/) de Robert Nystrom.
 
