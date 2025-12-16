@@ -17,7 +17,12 @@ class AstPrinter implements Expr.Visitor<String> {
 
     @Override
     public String visitCallExpr(Expr.Call expr) {
-        return parenthesize("call", expr.callee); // Simplificação para debug
+        return parenthesize("call", expr.callee);
+    }
+
+    @Override
+    public String visitThisExpr(Expr.This expr) {
+        return "this";
     }
 
     @Override
