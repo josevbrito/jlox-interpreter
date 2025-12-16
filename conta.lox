@@ -1,0 +1,31 @@
+class Conta {
+  init(titular, saldoInicial) {
+    this.titular = titular;
+    this.saldo = saldoInicial;
+  }
+
+  depositar(valor) {
+    this.saldo = this.saldo + valor;
+    print this.titular + " depositou " + valor;
+  }
+
+  sacar(valor) {
+    if (this.saldo >= valor) {
+      this.saldo = this.saldo - valor;
+      print this.titular + " sacou " + valor;
+    } else {
+      print "Saldo insuficiente para " + this.titular;
+    }
+  }
+
+  mostrarSaldo() {
+    print "Saldo de " + this.titular + ": " + this.saldo;
+  }
+}
+
+var minhaConta = Conta("Jose", 100);
+minhaConta.mostrarSaldo();
+minhaConta.depositar(50);
+minhaConta.sacar(30);
+minhaConta.sacar(200);
+minhaConta.mostrarSaldo();
