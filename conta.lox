@@ -6,26 +6,35 @@ class Conta {
 
   depositar(valor) {
     this.saldo = this.saldo + valor;
-    print this.titular + " depositou " + valor;
+    // Lox nao concatena numero com string automaticamente, 
+    // entao fazemos em dois prints:
+    print this.titular + " depositou:";
+    print valor;
   }
 
   sacar(valor) {
     if (this.saldo >= valor) {
       this.saldo = this.saldo - valor;
-      print this.titular + " sacou " + valor;
+      print this.titular + " sacou:";
+      print valor;
     } else {
       print "Saldo insuficiente para " + this.titular;
     }
   }
 
   mostrarSaldo() {
-    print "Saldo de " + this.titular + ": " + this.saldo;
+    print "Saldo de " + this.titular + ":";
+    print this.saldo;
   }
 }
 
 var minhaConta = Conta("Jose", 100);
 minhaConta.mostrarSaldo();
+print "---"; // Separador visual
 minhaConta.depositar(50);
+print "---";
 minhaConta.sacar(30);
+print "---";
 minhaConta.sacar(200);
+print "---";
 minhaConta.mostrarSaldo();
