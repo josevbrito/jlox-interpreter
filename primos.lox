@@ -1,0 +1,24 @@
+fun ehPrimo(n) {
+  if (n < 2) return false;
+  
+  var i = 2;
+  while (i < n) {
+    var divisao = n / i;
+    var inteiro = 0;
+    
+    for (var j = 0; j <= divisao; j = j + 1) {
+       inteiro = j;
+    }
+    
+    if (inteiro * i == n) return false;
+    i = i + 1;
+  }
+  return true;
+}
+
+print "Numeros primos ate 20:";
+for (var k = 0; k <= 20; k = k + 1) {
+  if (ehPrimo(k)) {
+    print k;
+  }
+}
