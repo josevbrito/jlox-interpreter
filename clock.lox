@@ -1,0 +1,12 @@
+fun fibonacci(n) {
+  if (n < 2) return n;
+  return fibonacci(n - 2) + fibonacci(n - 1);
+}
+
+var inicio = clock();
+print "Calculando Fibonacci de 25...";
+print fibonacci(25);
+var fim = clock();
+
+print "Tempo gasto (em segundos):";
+print fim - inicio;
